@@ -8,7 +8,7 @@ from utils.info import colors, font_name, font_size_normal, database_path
 from utils.search_bar import SearchBar
 from utils.timeout_bar import TimeoutBar
 from utils.generator import GeneratorFrame
-from utils.encoding_manager import EncodingManager
+from utils.encoding import EncodingManager # use encoding_manager for git
 from utils.accounts import Account, AccountDisplay
 from accounts_page import AccountsPage
 from edit_page import EditPage
@@ -19,7 +19,7 @@ from login_page import LoginPage
 #   it will be encoded incorrectly - it can never be retrived
 
 class App(Tk):
-    def __init__(self, w_fact=0.55, h_fact=0.75, header_footer_bg=colors['background0']):
+    def __init__(self, w_fact=0.6, h_fact=0.75, header_footer_bg=colors['background0']):
         self.__unsaved_message = 'There are unsaved changes to the current account. Loading a new account will discard unsaved changes. Do you want to load new account anyway?'
 
         Tk.__init__(self)
@@ -136,7 +136,7 @@ class App(Tk):
         # generate pandas DatFrame from a list of dictionaries
         df = pd.DataFrame([A.get_info_dict() for A in self.__Accounts])
         # sort DataFrame however you want
-        #df.to_csv(database_path, index=False)
+        df.to_csv(database_path, index=False)
 
     def new_account(self):
         '''creates new account to be edited in right frame'''
@@ -247,5 +247,6 @@ class App(Tk):
             if not messagebox.askyesno(title='Unsaved Changes', message=m, default='no'):
                 return # do not exit app
         self.destroy()
+        quit() # this doesnt work - python still doesnt stop running
 
 root = App()

@@ -17,6 +17,16 @@ colors = {
     'inactive_icon':'#888888'
 }
 
+category_colors = {
+    'music':'#0e0439',
+    'personal':'#505200',
+    'school':'#3a0430',
+    'sports':'#04303a',
+    'websites':'#152029',
+    'work':'#291514',
+    'other':'#1f1f1f'
+}
+
 # GUI View
 font_name = 'Segoe UI'
 font_name_bold = 'Segoe UI bold'

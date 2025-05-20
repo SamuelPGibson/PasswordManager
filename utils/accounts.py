@@ -1,17 +1,19 @@
 from tkinter import Frame, Label, messagebox
 from chichitk import IconButton
 
-from .info import colors, font_name, font_name_bold, font_size_normal, font_size_header
+from .info import colors, font_name, font_name_bold, font_size_normal, font_size_header, category_colors
 
 
 class AccountDisplay(Frame):
+    ''' Frame for displaying account information in AccountsPage list
+    '''
     def __init__(self, master, name:str, notes:str, category:str, date:str,
                  select_command, delete_command, bg=colors['background3'],
                  active_bg=colors['background4'], hover_bg=colors['background4'],
                  active_bar_color=colors['active_icon'], active_fg_header='#ffffff',
                  active_fg_notes='#ffffff', inactive_fg_header=colors['inactive_icon'],
                  inactive_fg_notes=colors['inactive_icon'], bar_width=5,
-                 selected=False, info_max_len=55):
+                 selected=False):
         Frame.__init__(self, master, bg=bg)
         self.__command = select_command # function called when account is selected - takes account name as input
         self.__delete_command = delete_command
@@ -25,7 +27,7 @@ class AccountDisplay(Frame):
         self.__notes_colors = [inactive_fg_notes, active_fg_notes]
         self.__bar_colors = [[bg, hover_bg], [active_bar_color, active_bar_color]]
         self.__bg_colors = [[bg, hover_bg], [active_bg, active_bg]]
-        self.info_max_len = info_max_len # maximum length of info text displayed under account name
+        self.info_max_len = 60 # maximum length of info text displayed under account name - changes based on frame width
 
         self.bar = Frame(self, width=bar_width)
         self.bar.pack(side='right', fill='y')
@@ -44,6 +46,9 @@ class AccountDisplay(Frame):
         self.header_label = Label(self.top_frame, text=self.__name,
                                   font=(font_name_bold, font_size_header))
         self.header_label.pack(side='left', padx=6, pady=2)
+        self.date_label = Label(self.top_frame, text=self.__date,
+                                font=(font_name, font_size_normal))
+        self.date_label.pack(side='left', padx=0)
 
         self.bottom_frame = Frame(body_frame)
         self.bottom_frame.pack(side='bottom', fill='x')
@@ -54,10 +59,18 @@ class AccountDisplay(Frame):
         self.bind('<Enter>', self.hover_enter)
         self.bind('<Leave>', self.hover_leave)
         self.bind('<Button-1>', self.click)
-        for frame in [self.top_frame, self.bottom_frame, self.bar, self.header_label, self.info_label]:
+        for frame in [self.top_frame, self.bottom_frame, self.bar, self.header_label, self.date_label, self.info_label]:
             frame.bind('<Button-1>', self.click)
 
+        self.bind('<Configure>', self.__configure) # to update info text width
+
         self.config_colors()
+
+    def __configure(self, event=None):
+        '''called whenever frame is resized'''
+        # the width to text_length ratio probably shouldn't be hard coded
+        self.info_max_len = int(self.winfo_width() / 7)
+        self.info_label.config(text=self.get_info_text())
 
     def config_colors(self):
         '''sets colors based on selected status'''
@@ -69,6 +82,7 @@ class AccountDisplay(Frame):
         self.DeleteButton.set_color(bg, which='bg', selected=False, hover=False)
         self.header_label.config(bg=bg, fg=self.__header_colors[self.__selected])
         self.info_label.config(bg=bg, fg=self.__notes_colors[self.__selected])
+        self.date_label.config(bg=bg, fg=self.__notes_colors[self.__selected])
         self.bar.config(bg=self.__bar_colors[self.__selected][self.__hovering])
     
     def hover_enter(self, event=None):
@@ -136,7 +150,7 @@ class AccountDisplay(Frame):
     def set_date(self, date:str):
         '''updates account date - date account was created or modified'''
         self.__date = date
-        self.info_label.config(text=self.get_info_text())
+        self.date_label.config(text=self.__date)
 
     def trim_text(self, text:str, max_len:int):
         '''
@@ -233,29 +247,36 @@ class Account:
         '''returns AccountDisplay object associated with account'''
         return self.__Display
 
-    def get_name(self):
+    def get_name(self) -> str:
         '''returns account name'''
         return self.__name
     
-    def get_username(self):
+    def get_username(self) -> str:
         '''returns account username'''
         return self.__username
     
-    def get_password(self):
+    def get_password(self) -> str:
         '''returns account password'''
         return self.__password
     
-    def get_category(self):
+    def get_category(self) -> str:
         '''returns account category'''
         return self.__category
     
-    def get_notes(self):
+    def get_notes(self) -> str:
         '''returns account notes'''
         return self.__notes
     
-    def get_date(self):
+    def get_date(self) -> str:
         '''returns account date'''
         return self.__date
+
+    def get_color(self) -> str:
+        '''returns color based on category_colors in info.py'''
+        if self.get_category().lower() in category_colors:
+            return category_colors[self.get_category().lower()]
+        else:
+            return category_colors['other']
 
     def get_info_dict(self):
         '''returns account info as a dictionary

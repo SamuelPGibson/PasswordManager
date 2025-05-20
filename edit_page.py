@@ -1,5 +1,5 @@
 from tkinter import Frame, Label, messagebox
-from chichitk import EditLabel, DoubleIconButton
+from chichitk import EditLabel, DoubleIconButton, brighten
 
 
 from utils.info import colors, font_name_bold, font_size_header
@@ -167,7 +167,9 @@ class EditPage(Frame):
         self.to_static() # switch static mode
         self.__Account = Account
         # update fields
+        bg = self.__Account.get_color()
         info = self.__Account.get_info_dict()
+        self.__Name.set_bg(bg, hover_bg=brighten(bg, 0.1))
         self.__Name.set_text(info['name'])
         self.__Username.set_text(info['username'])
         self.__Password.set_text(self.__EncodingManager.decode(info['password']))
